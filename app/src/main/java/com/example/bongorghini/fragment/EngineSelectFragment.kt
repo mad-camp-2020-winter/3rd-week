@@ -2,8 +2,10 @@ package com.example.bongorghini.fragment
 
 import android.annotation.SuppressLint
 import android.app.Service
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.location.Criteria
 import android.location.Location
@@ -23,6 +25,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.example.bongorghini.R
+import com.example.bongorghini.service.GpsService
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.GooglePlayServicesUtil.isGooglePlayServicesAvailable
@@ -54,7 +57,24 @@ class EngineSelectFragment : Fragment() {
     private lateinit var locationManager: LocationManager
     private lateinit var gpsTracker: GpsTracker
 
+    lateinit var myService: GpsService
+    private var myBound: Boolean = true
 
+    private val connection = object: ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as GpsService.MyBinder
+            myService = binder.getService()
+
+            myService.myContext = myContext
+
+            myBound = true
+            Log.d("Service", "Initialized")
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            myBound = false
+        }
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -90,6 +110,8 @@ class EngineSelectFragment : Fragment() {
         val gpsButton = viewOfLayout.findViewById<Button>(R.id.gpsButton)
         gpsButton.setOnClickListener {
 
+//            myService.startForeGroundService()
+
             gpsTracker = GpsTracker(myContext)
             val latitude = gpsTracker.getLatitude()
             val longitude = gpsTracker.getLongitude()
@@ -101,9 +123,14 @@ class EngineSelectFragment : Fragment() {
             Log.d("location", "Lat: ${latitude}, Lng: ${longitude}")
         }
 
+        Log.d("Service", "requireActivity")
+//        requireActivity().startService(Intent(requireContext(), GpsService::class.java))
+//        requireActivity().bindService(Intent(requireContext(), GpsService::class.java), connection, Context.BIND_AUTO_CREATE)
+
 
         return viewOfLayout
     }
+
 
 
     private fun checkPlayServices(): Boolean {

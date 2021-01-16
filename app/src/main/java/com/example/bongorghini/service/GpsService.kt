@@ -7,11 +7,8 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.os.Binder
-import android.os.Build
-import android.os.IBinder
+import android.os.*
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.example.bongorghini.MainActivity
@@ -19,21 +16,24 @@ import com.example.bongorghini.R
 import java.lang.Exception
 import kotlin.concurrent.timer
 
-class GpsService(context: Context): Service() {
+class GpsService(): Service() {
     val CHANNEL_ID = "GPSForegroundServiceChannel"
     val NOTIFICATION_ID = 102
 
 
     private val myBinder = MyBinder()
-    private var myContext = context
-    private var locationManager: LocationManager = myContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    private lateinit var gpsTracker: GpsTracker
+    lateinit var myContext: Context
+    private val locationManager: LocationManager by lazy {
+        myContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    }
+    private lateinit var gpsTrackerforService: GpsTrackerforService
 
     private val dt: Long = 1000
 
-    private var location1: Location? = null
-    private var location2: Location? = null
+    private var location_temp: Location? = null
     private var speed_kph: Double? = null
+
+    private var temp = 0
 
     inner class MyBinder: Binder() {
         fun getService(): GpsService = this@GpsService
@@ -62,22 +62,35 @@ class GpsService(context: Context): Service() {
         val notification = createNotification(pendingIntent)
         startForeground(NOTIFICATION_ID, notification)
 
-        gpsTracker = GpsTracker(myContext)
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         timer(period = dt) {
-            location1 = location2
-            location2 = gpsTracker.getGPSLocation()
+            var mHandler = Handler(Looper.getMainLooper())
+            mHandler.postDelayed(Runnable {
+                gpsTrackerforService = GpsTrackerforService(myContext)
+                val location_curr = gpsTrackerforService.getGPSLocation()
 
-            if (location1 != null && location2 != null) {
-                val speed_mps = location2!!.distanceTo(location1) / (dt / 1000) as Double
-                speed_kph = mps_to_kph(speed_mps)
+                if (location_curr != null) {
+                    if (location_temp != null) {
+                        val speed_mps: Double = (location_curr!!.distanceTo(location_temp).toDouble()) / (dt / 1000).toDouble()
+                        speed_kph = mps_to_kph(speed_mps)
 
-                Toast.makeText(myContext, "speed: $speed_kph", Toast.LENGTH_SHORT).show()
+                        location_temp = location_curr
+                        notificationManager.notify(NOTIFICATION_ID, createNotification(pendingIntent))
+                        temp++
+                    } else {
+                        location_temp = location_curr
+                    }
 
-            }
+                }
+
+                Log.d("Location curr", location_curr.toString())
+                Log.d("Location temp", location_temp.toString())
+                Log.d("Speed", speed_kph.toString())
+            }, 0)
+
         }
-
-
 
     }
 
@@ -88,7 +101,7 @@ class GpsService(context: Context): Service() {
     private fun createNotification(pendingIntent: PendingIntent): Notification {
         val notification = androidx.core.app.NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Bongorghini")
-            .setContentText("Range mode activated")
+            .setContentText("$speed_kph km/h" + temp.toString())
             .setSmallIcon(R.drawable.bongorghini_logo)
             .setOngoing(true)
             .setNotificationSilent()
@@ -116,7 +129,7 @@ class GpsService(context: Context): Service() {
         }
     }
 
-    inner class GpsTracker(context: Context): Service(), LocationListener {
+    inner class GpsTrackerforService(context: Context): Service(), LocationListener {
         var mcontext: Context
         var location: Location? = null
         var lat: Double? = null
@@ -140,12 +153,12 @@ class GpsService(context: Context): Service() {
         }
 
         fun getGPSLocation(): Location? {
+            location = null
             try {
                 val isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 
                 if (isGPSEnabled || isNetworkEnabled) {
-                    Log.d("Location", "Gps enabled")
                     val hasFineLocationPermission = ContextCompat.checkSelfPermission(myContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
                     val hasCoarseLocationPermission = ContextCompat.checkSelfPermission(myContext, android.Manifest.permission.ACCESS_COARSE_LOCATION)
 
@@ -156,10 +169,10 @@ class GpsService(context: Context): Service() {
                     }
 
                     if (isGPSEnabled) {
-
+                        Log.d("Location", "Gps enabled")
                         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                                 MIN_TIME_BW_UPDATES,
-                                0F,
+                                MIN_DISTANCE_CHANGE_FOR_UPDATES,
                                 (this as LocationListener)
                         )
                         location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
