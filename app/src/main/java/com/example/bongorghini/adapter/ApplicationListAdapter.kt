@@ -4,21 +4,18 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.util.TypedValue
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.view.*
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bongorghini.R
+import com.example.bongorghini.listener.ItemActionListener
+import com.example.bongorghini.listener.ItemDragListener
 import com.example.bongorghini.model.Application
 import java.io.ByteArrayInputStream
 import java.util.*
 
 
-class ApplicationListAdapter(list: ArrayList<Application>?) : RecyclerView.Adapter<ApplicationListAdapter.CustomViewHolder>() {
+class ApplicationListAdapter(list: ArrayList<Application>?, private val listener : ItemDragListener) : RecyclerView.Adapter<ApplicationListAdapter.CustomViewHolder>(), ItemActionListener {
 //    private val mLongListener: OnListItemLongSelectedInterface
 //    private val mListener: OnListItemSelectedInterface
 
@@ -26,17 +23,31 @@ class ApplicationListAdapter(list: ArrayList<Application>?) : RecyclerView.Adapt
 
     private var mList: ArrayList<Application>? = ArrayList<Application>()
 
-    //누를 때, 길게 누를때 상황에 맞춰 override
-    interface OnListItemLongSelectedInterface {
-        fun onItemLongSelected(v: View?, position: Int)
+//    //누를 때, 길게 누를때 상황에 맞춰 override
+//    interface OnListItemLongSelectedInterface {
+//        fun onItemLongSelected(v: View?, position: Int)
+//    }
+//
+//    interface OnListItemSelectedInterface {
+//        fun onItemSelected(v: View?, position: Int)
+//    }
+
+    //ItemActionListener 재정의
+    override fun onItemMoved(from: Int, to: Int) {
+        if (from == to) return
+
+        val fromItem = mList!!.removeAt(from)
+        mList?.add(to, fromItem)
+        notifyItemMoved(from, to)
     }
 
-    interface OnListItemSelectedInterface {
-        fun onItemSelected(v: View?, position: Int)
+    override fun onItemSwiped(position: Int) {
+        mList!!.removeAt(position)
+        notifyItemRemoved(position)
     }
 
 
-    inner class CustomViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class CustomViewHolder(view: View, listener: ItemDragListener) : RecyclerView.ViewHolder(view) {
         var name: TextView
         var delay: TextView
         var icon: ImageView
@@ -46,11 +57,13 @@ class ApplicationListAdapter(list: ArrayList<Application>?) : RecyclerView.Adapt
             name = view.findViewById<View>(R.id.list_name) as TextView
             delay = view.findViewById(R.id.list_delay) as TextView
             icon = view.findViewById(R.id.list_icon) as ImageView
-//            view.setOnClickListener { v -> mListener.onItemSelected(v, adapterPosition) }
-//            view.setOnLongClickListener { v ->
-//                mLongListener.onItemLongSelected(v, adapterPosition)
-//                false
-//            }
+            var button = view.findViewById(R.id.order_button) as ImageButton
+            button.setOnTouchListener { v, event ->
+                if(event.action == MotionEvent.ACTION_DOWN) {
+                    listener.onStartDrag(this)
+                }
+                false
+            }
         }
     }
 
@@ -58,7 +71,7 @@ class ApplicationListAdapter(list: ArrayList<Application>?) : RecyclerView.Adapt
         val view: View = LayoutInflater.from(viewGroup.context)
                 .inflate(R.layout.recyclerview_application, viewGroup, false)
         context = view.context
-        return CustomViewHolder(view)
+        return CustomViewHolder(view, listener)
 //        if (this::context.isInitialized)
     }
 

@@ -5,14 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bongorghini.R
 import com.example.bongorghini.adapter.ApplicationListAdapter
+import com.example.bongorghini.listener.ItemDragListener
 import com.example.bongorghini.model.Application
+import com.example.bongorghini.utils.ItemTouchHelperCallback
 
-class OrderListFragment : Fragment() {
+class OrderListFragment : Fragment(), ItemDragListener {
 
+    private lateinit var itemTouchHelper : ItemTouchHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -38,12 +42,27 @@ class OrderListFragment : Fragment() {
         newApplication1.path = "root/main"
         list.add(newApplication1)
 
-        var mAdapter = ApplicationListAdapter(list)
+        var newApplication2 = Application()
+        newApplication2.name = "T MAP"
+        newApplication2.delay = 10
+        newApplication2.path = "root/main"
+        list.add(newApplication2)
+
+        var mAdapter = ApplicationListAdapter(list, this)
         listView.adapter = mAdapter
 
         var mLinearLayoutManager : LinearLayoutManager = LinearLayoutManager(this.context)
         listView.layoutManager = mLinearLayoutManager
+
+        //drag 및 swipe삭제 위해 ItemTouchHelper와 연결
+        itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(mAdapter))
+        itemTouchHelper.attachToRecyclerView(listView)
         return v
+
+    }
+
+    override fun onStartDrag(viewHolder: RecyclerView.ViewHolder){
+        itemTouchHelper.startDrag(viewHolder)
     }
 
 

@@ -19,6 +19,7 @@
             />
 
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="100dp"
@@ -26,7 +27,7 @@
         android:background="@drawable/list_layout">
 
         <ImageView
-            android:layout_width="130dp"
+            android:layout_width="100dp"
             android:layout_height="match_parent"
             android:id="@+id/list_icon"
             android:paddingTop="15dp"
@@ -37,20 +38,33 @@
             />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/text_linear"
-            android:orientation="vertical">
+            android:orientation="horizontal">
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:id="@+id/list_name"
-                android:textSize="30dp"
+                android:textSize="15dp"
                 android:textStyle="bold"
                 android:paddingTop="10dp"
                 android:text="앱 이름 : 공공장비 온라인센터"
                 />
         </LinearLayout>
+
+        <FrameLayout
+        android:id="@+id/drag_handle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:src="@drawable/tools"
+            android:id="@+id/order_button"/>
+        </FrameLayout>
     </LinearLayout>
 
 
