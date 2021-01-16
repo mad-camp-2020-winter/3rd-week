@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.example.bongorghini.R
 import com.example.bongorghini.service.GpsService
+import com.example.bongorghini.utils.GpsTracker
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.GooglePlayServicesUtil.isGooglePlayServicesAvailable
@@ -108,138 +109,29 @@ class EngineSelectFragment : Fragment() {
         val locationLog = viewOfLayout.findViewById<TextView>(R.id.locationLog)
 
         val gpsButton = viewOfLayout.findViewById<Button>(R.id.gpsButton)
+
         gpsButton.setOnClickListener {
+            myService.startForeGroundService()
 
-//            myService.startForeGroundService()
+//            gpsTracker = GpsTracker(myContext)
+//            val latitude = gpsTracker.getLatitude()
+//            val longitude = gpsTracker.getLongitude()
+//            val speed = gpsTracker.getSpeed()
+//
+//            locationLog.text = locationLog.text.toString() + "\nLat: ${latitude}, Lng: ${longitude}, Spd: ${speed}"
 
-            gpsTracker = GpsTracker(myContext)
-            val latitude = gpsTracker.getLatitude()
-            val longitude = gpsTracker.getLongitude()
-            locationLog.text = locationLog.text.toString() + "\nLat: ${latitude}, Lng: ${longitude}"
 
+//            Toast.makeText(myContext, "Lat: ${latitude}, Lng: ${longitude}, Spd: ${speed}", Toast.LENGTH_SHORT).show()
 
-            Toast.makeText(myContext, "Lat: ${latitude}, Lng: ${longitude}", Toast.LENGTH_SHORT).show()
-
-            Log.d("location", "Lat: ${latitude}, Lng: ${longitude}")
+//            Log.d("location", "Lat: ${latitude}, Lng: ${longitude}")
         }
 
         Log.d("Service", "requireActivity")
-//        requireActivity().startService(Intent(requireContext(), GpsService::class.java))
-//        requireActivity().bindService(Intent(requireContext(), GpsService::class.java), connection, Context.BIND_AUTO_CREATE)
+        requireActivity().startService(Intent(requireContext(), GpsService::class.java))
+        requireActivity().bindService(Intent(requireContext(), GpsService::class.java), connection, Context.BIND_AUTO_CREATE)
 
 
         return viewOfLayout
-    }
-
-
-
-    private fun checkPlayServices(): Boolean {
-        val googleAPI = GoogleApiAvailability.getInstance()
-        val result = googleAPI.isGooglePlayServicesAvailable(myContext)
-        if (result != ConnectionResult.SUCCESS) {
-            println("alal")
-            if (googleAPI.isUserResolvableError(result)) {
-                println("blbl")
-                googleAPI.getErrorDialog(
-                    myContext, result,
-                    PLAY_SERVICES_RESOLUTION_REQUEST
-                ).show()
-            }
-            return false
-        }
-        return true
-    }
-
-    inner class GpsTracker(context: Context): Service(), LocationListener {
-        var mcontext: Context
-        var location: Location? = null
-        var lat: Double? = null
-        var lng: Double? = null
-
-
-        init {
-            mcontext = context
-            getGPSLocation()
-        }
-
-        override fun onBind(intent: Intent?): IBinder? {
-            TODO("Not yet implemented")
-        }
-
-        override fun onLocationChanged(location: Location) {
-            Log.d("Location", "location changed!")
-        }
-
-        fun getGPSLocation(): Location? {
-            try {
-                val isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-
-                if (isGPSEnabled || isNetworkEnabled) {
-                    Log.d("Location", "Gps enabled")
-                    val hasFineLocationPermission = ContextCompat.checkSelfPermission(myContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                    val hasCoarseLocationPermission = ContextCompat.checkSelfPermission(myContext, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-
-                    if (hasFineLocationPermission != PackageManager.PERMISSION_GRANTED
-                        || hasCoarseLocationPermission != PackageManager.PERMISSION_GRANTED) {
-                        Log.d("Location", "permission denied")
-                        return null
-                    }
-
-                    if (isGPSEnabled) {
-
-                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                            MIN_TIME_BW_UPDATES,
-                            0F,
-                            (this as LocationListener)
-                        )
-                        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                        if (location != null) {
-                            lat = location!!.latitude
-                            lng = location!!.longitude
-                            Log.d("Location", "location is not null")
-                        } else {
-                            Log.d("Location", "location is null")
-                        }
-                    }
-                    if (isNetworkEnabled && location == null) {
-                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                            MIN_TIME_BW_UPDATES,
-                            MIN_DISTANCE_CHANGE_FOR_UPDATES,
-                            (this as LocationListener))
-
-                        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-                        if (location != null) {
-                            lat = location!!.latitude
-                            lng = location!!.longitude
-                        }
-                    }
-
-                    return location
-
-                } else {
-                    Log.d("GpsTracker.getLocation", "Gps is not enabled")
-                    return null
-                }
-            } catch (e: Exception) {
-                Log.d("GpsTracker.getLocation", e.toString())
-                return null
-            }
-        }
-
-        fun getLatitude(): Double? {
-            if (location != null) {
-                lat = location!!.latitude
-            }
-            return lat
-        }
-
-        fun getLongitude(): Double? {
-            if (location != null) {
-                lng = location!!.longitude
-            }
-            return lng
-        }
     }
 
 

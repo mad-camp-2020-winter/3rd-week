@@ -3,30 +3,31 @@ package com.example.bongorghini.service
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.*
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import com.example.bongorghini.MainActivity
 import com.example.bongorghini.R
-import java.lang.Exception
+import com.example.bongorghini.utils.GpsTracker
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.concurrent.timer
 
-class GpsService(): Service() {
+class GpsService(): Service(), LocationListener {
     val CHANNEL_ID = "GPSForegroundServiceChannel"
     val NOTIFICATION_ID = 102
 
+    var formattedTime: String? = null
 
     private val myBinder = MyBinder()
     lateinit var myContext: Context
     private val locationManager: LocationManager by lazy {
         myContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     }
-    private lateinit var gpsTrackerforService: GpsTrackerforService
+    private lateinit var gpsTracker: GpsTracker
 
     private val dt: Long = 1000
 
@@ -54,6 +55,10 @@ class GpsService(): Service() {
         return myBinder
     }
 
+    override fun onLocationChanged(location: Location) {
+        TODO("Not yet implemented")
+    }
+
     fun startForeGroundService() {
         val notificationIntent = Intent(this, MainActivity::class.java)
         notificationIntent.putExtra("tabIndex", 2)
@@ -68,8 +73,8 @@ class GpsService(): Service() {
         timer(period = dt) {
             var mHandler = Handler(Looper.getMainLooper())
             mHandler.postDelayed(Runnable {
-                gpsTrackerforService = GpsTrackerforService(myContext)
-                val location_curr = gpsTrackerforService.getGPSLocation()
+                gpsTracker = GpsTracker(myContext)
+                val location_curr = gpsTracker.getLocation()
 
                 if (location_curr != null) {
                     if (location_temp != null) {
@@ -85,7 +90,12 @@ class GpsService(): Service() {
 
                 }
 
-                Log.d("Location curr", location_curr.toString())
+                val simpleDateFormat = SimpleDateFormat("yy/MM/dd kk:mm:ss")
+                simpleDateFormat.timeZone = TimeZone.getTimeZone("GMT+9")
+
+                formattedTime = simpleDateFormat.format(location_curr!!.time)
+
+                Log.d("Location curr", formattedTime!!)
                 Log.d("Location temp", location_temp.toString())
                 Log.d("Speed", speed_kph.toString())
             }, 0)
@@ -101,7 +111,7 @@ class GpsService(): Service() {
     private fun createNotification(pendingIntent: PendingIntent): Notification {
         val notification = androidx.core.app.NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Bongorghini")
-            .setContentText("$speed_kph km/h" + temp.toString())
+            .setContentText("$speed_kph km/h" + temp.toString() + formattedTime)
             .setSmallIcon(R.drawable.bongorghini_logo)
             .setOngoing(true)
             .setNotificationSilent()
@@ -126,101 +136,6 @@ class GpsService(): Service() {
             val notificationManager: NotificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
-        }
-    }
-
-    inner class GpsTrackerforService(context: Context): Service(), LocationListener {
-        var mcontext: Context
-        var location: Location? = null
-        var lat: Double? = null
-        var lng: Double? = null
-
-        private val MIN_DISTANCE_CHANGE_FOR_UPDATES: Float = 1F
-        private val MIN_TIME_BW_UPDATES: Long = (1000 * 1)
-
-
-        init {
-            mcontext = context
-            getGPSLocation()
-        }
-
-        override fun onBind(intent: Intent?): IBinder? {
-            TODO("Not yet implemented")
-        }
-
-        override fun onLocationChanged(location: Location) {
-            Log.d("Location", "location changed!")
-        }
-
-        fun getGPSLocation(): Location? {
-            location = null
-            try {
-                val isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-
-                if (isGPSEnabled || isNetworkEnabled) {
-                    val hasFineLocationPermission = ContextCompat.checkSelfPermission(myContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                    val hasCoarseLocationPermission = ContextCompat.checkSelfPermission(myContext, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-
-                    if (hasFineLocationPermission != PackageManager.PERMISSION_GRANTED
-                            || hasCoarseLocationPermission != PackageManager.PERMISSION_GRANTED) {
-                        Log.d("Location", "permission denied")
-                        return null
-                    }
-
-                    if (isGPSEnabled) {
-                        Log.d("Location", "Gps enabled")
-                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                                MIN_TIME_BW_UPDATES,
-                                MIN_DISTANCE_CHANGE_FOR_UPDATES,
-                                (this as LocationListener)
-                        )
-                        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                        if (location != null) {
-                            lat = location!!.latitude
-                            lng = location!!.longitude
-                            Log.d("Location", "location is not null")
-                        } else {
-                            Log.d("Location", "location is null")
-                        }
-                    }
-                    if (isNetworkEnabled && location == null) {
-                        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
-                                MIN_TIME_BW_UPDATES,
-                                MIN_DISTANCE_CHANGE_FOR_UPDATES,
-                                (this as LocationListener))
-
-                        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-                        if (location != null) {
-                            lat = location!!.latitude
-                            lng = location!!.longitude
-                        }
-                    }
-
-                    return location
-
-                } else {
-                    Log.d("GpsTracker.getLocation", "Gps is not enabled")
-                    return null
-                }
-            } catch (e: Exception) {
-                Log.d("GpsTracker.getLocation", e.toString())
-                return null
-            }
-        }
-
-        fun getLatitude(): Double? {
-            if (location != null) {
-                lat = location!!.latitude
-            }
-            return lat
-        }
-
-        fun getLongitude(): Double? {
-            if (location != null) {
-                lng = location!!.longitude
-            }
-            return lng
         }
     }
 
