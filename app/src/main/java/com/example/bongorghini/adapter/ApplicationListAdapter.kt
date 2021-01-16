@@ -2,6 +2,7 @@ package com.example.bongorghini.adapter
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.util.Base64
 import android.util.TypedValue
 import android.view.*
@@ -97,6 +98,7 @@ class ApplicationListAdapter(list: ArrayList<Application>?, private val listener
             val inputStream = ByteArrayInputStream(bytePlainOrg)
             val bitmap = BitmapFactory.decodeStream(inputStream)
             viewholder.icon.setImageBitmap(bitmap)
+//            viewholder.icon.setImageDrawable(data)
         }
     }
 
