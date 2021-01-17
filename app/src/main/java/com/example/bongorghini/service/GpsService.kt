@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.*
 import android.util.Log
@@ -21,6 +22,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.timer
+import kotlin.math.max
 
 
 class GpsService(): Service(), LocationListener {
@@ -59,12 +61,14 @@ class GpsService(): Service(), LocationListener {
 
     val debugVelocity = listOf<Double>(
         0.0, 1.0, 2.0,
-        3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0,
-        14.0, 15.0, 16.0,
+        3.0, 4.0, 5.0, 36.0, 37.0, 38.0, 79.0, 80.0, 81.0, 92.0, 103.0,
+        104.0, 95.0, 76.0,
         0.0,
-        17.0, 18.0, 19.0, 18.0, 17.0, 16.0, 15.0, 14.0, 13.0, 12.0, 11.0, 10.0,
+        77.0, 38.0, 39.0, 38.0, 27.0, 16.0, 15.0, 14.0, 13.0, 12.0, 11.0, 10.0,
         9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0
     )
+
+    var maxVolumeIndex: Int? = null
 
     inner class MyBinder: Binder() {
         fun getService(): GpsService = this@GpsService
@@ -123,6 +127,9 @@ class GpsService(): Service(), LocationListener {
 
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+        maxVolumeIndex = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
 
         batteryStatus = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let {
                 intentFilter -> myContext.registerReceiver(powerConnectionReceiver, intentFilter)
@@ -149,9 +156,27 @@ class GpsService(): Service(), LocationListener {
 
                     speed_kph_temp = speed_kph
                 }
-                val status: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-                isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING
-//                        || status == BatteryManager.BATTERY_STATUS_FULL
+
+                // 속도로 볼륨 컨트롤
+
+                if (speed_kph!! < 10.0 && speed_kph!! != 0.0) {
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2, 0)
+                } else if (speed_kph!! < 20.0) {
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 1, 0)
+                } else if (speed_kph!! < 30.0) {
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 2, 0)
+                } else if (speed_kph!! < 40.0) {
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 3, 0)
+                } else if (speed_kph!! < 60.0) {
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 4, 0)
+                } else if (speed_kph!! < 80.0) {
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 5, 0)
+                } else if (speed_kph!! < 100.0) {
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 6, 0)
+                }else if (speed_kph!! >= 100.0) {
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 7, 0)
+                }
+
 
                 // 로그 찍기
                 val simpleDateFormat = SimpleDateFormat("yy/MM/dd kk:mm:ss")
