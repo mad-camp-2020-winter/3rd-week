@@ -5,10 +5,23 @@
     android:layout_height="match_parent"
     tools:context=".fragment.OrderListFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/order_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:scrollbarFadeDuration="0"
+        android:scrollbarSize="5dp"
+        android:scrollbarThumbVertical="@android:color/darker_gray"
+        android:scrollbars="vertical"/>
 
+    <ImageView
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:id="@+id/add_application"
+        android:src="@drawable/picture"
+        android:scaleType="centerCrop"
+        android:paddingRight="20dp"
+        android:paddingBottom="20dp"
+        android:layout_gravity="bottom|end"
+        />
 </FrameLayout>
