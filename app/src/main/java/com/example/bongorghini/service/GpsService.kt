@@ -10,13 +10,17 @@ import android.location.LocationManager
 import android.media.MediaPlayer
 import android.os.*
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.example.bongorghini.MainActivity
 import com.example.bongorghini.R
+import com.example.bongorghini.utils.BatteryResultCallback
 import com.example.bongorghini.utils.GpsTracker
+import com.example.bongorghini.utils.PowerConnectionReceiver
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.timer
+
 
 class GpsService(): Service(), LocationListener {
     val CHANNEL_ID = "GPSForegroundServiceChannel"
@@ -31,7 +35,7 @@ class GpsService(): Service(), LocationListener {
     }
     private lateinit var gpsTracker: GpsTracker
 
-    private val dt: Long = 1000
+    private val dt: Long = 3000
 
     private var location_temp: Location? = null
 
@@ -45,14 +49,22 @@ class GpsService(): Service(), LocationListener {
     lateinit var mediaPlayerOnDecel: MediaPlayer
     var currentSound = "Start"
 
-    val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let {
-        intentFilter -> myContext.registerReceiver(null, intentFilter)
-    }
+    var powerConnectionReceiver: PowerConnectionReceiver
+    lateinit var batteryStatus: Intent
     var isCharging = false
 
 
     inner class MyBinder: Binder() {
         fun getService(): GpsService = this@GpsService
+    }
+
+    init {
+        powerConnectionReceiver =
+            PowerConnectionReceiver(object : BatteryResultCallback {
+                override fun callDelegate(isCharging: Boolean) {
+                    Toast.makeText(myContext, if (isCharging) "충전중" else "Cable 연결안됨", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -87,13 +99,22 @@ class GpsService(): Service(), LocationListener {
     fun startForeGroundService() {
         val notificationIntent = Intent(this, MainActivity::class.java)
         notificationIntent.putExtra("tabIndex", 2)
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            notificationIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         val notification = createNotification(pendingIntent)
         startForeground(NOTIFICATION_ID, notification)
 
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        batteryStatus = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let {
+                intentFilter -> myContext.registerReceiver(powerConnectionReceiver, intentFilter)
+        }!!
 
         timer(period = dt) {
             var mHandler = Handler(Looper.getMainLooper())
@@ -108,7 +129,10 @@ class GpsService(): Service(), LocationListener {
                         speed_kph = mps_to_kph(speed_mps)
 
                         location_temp = location_curr
-                        notificationManager.notify(NOTIFICATION_ID, createNotification(pendingIntent))
+                        notificationManager.notify(
+                            NOTIFICATION_ID,
+                            createNotification(pendingIntent)
+                        )
                         temp++
                     } else {
                         location_temp = location_curr
@@ -117,11 +141,15 @@ class GpsService(): Service(), LocationListener {
                 }
                 val status: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
                 isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING
-                        || status == BatteryManager.BATTERY_STATUS_FULL
+//                        || status == BatteryManager.BATTERY_STATUS_FULL
 
                 // 로그 찍기
                 val simpleDateFormat = SimpleDateFormat("yy/MM/dd kk:mm:ss")
                 simpleDateFormat.timeZone = TimeZone.getTimeZone("GMT+9")
+
+//                if (isCharging) {
+//                    Toast.makeText(myContext, "isCharging", Toast.LENGTH_SHORT).show()
+//                }
 
                 formattedTime = simpleDateFormat.format(location_curr!!.time)
 
@@ -169,7 +197,7 @@ class GpsService(): Service(), LocationListener {
         }
     }
 
-    fun mps_to_kph (v_mps: Double): Double {
+    fun mps_to_kph(v_mps: Double): Double {
         return v_mps * 3.6
     }
 
