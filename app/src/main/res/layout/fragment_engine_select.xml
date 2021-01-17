@@ -29,6 +29,17 @@
             android:id="@+id/locationLog"
             />
 
+        <com.kyleduo.switchbutton.SwitchButton
+            android:id="@+id/rangeButton"
+            style="@style/SwitchButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <com.kyleduo.switchbutton.SwitchButton
+            android:id="@+id/volumeControlButton"
+            style="@style/SwitchButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 

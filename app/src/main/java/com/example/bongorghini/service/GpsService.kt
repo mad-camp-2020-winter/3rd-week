@@ -33,9 +33,9 @@ class GpsService(): Service(), LocationListener {
 
     private val myBinder = MyBinder()
     lateinit var myContext: Context
-    private val locationManager: LocationManager by lazy {
-        myContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    }
+//    private val locationManager: LocationManager by lazy {
+//        myContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+//    }
     private lateinit var gpsTracker: GpsTracker
 
     private val dt: Long = 1000
@@ -53,11 +53,9 @@ class GpsService(): Service(), LocationListener {
     lateinit var mediaPlayerOnAccel: MediaPlayer
     lateinit var mediaPlayerOnDecel: MediaPlayer
     var currentSound = "Null"
-    var currentStatus = -1
 
     var powerConnectionReceiver: PowerConnectionReceiver
     lateinit var batteryStatus: Intent
-    var isCharging = false
 
     val debugVelocity = listOf<Double>(
         0.0, 1.0, 2.0,
@@ -69,6 +67,8 @@ class GpsService(): Service(), LocationListener {
     )
 
     var maxVolumeIndex: Int? = null
+
+    var volumeControlActive = true
 
     inner class MyBinder: Binder() {
         fun getService(): GpsService = this@GpsService
@@ -158,23 +158,25 @@ class GpsService(): Service(), LocationListener {
                 }
 
                 // 속도로 볼륨 컨트롤
+                if (volumeControlActive) {
 
-                if (speed_kph!! < 10.0 && speed_kph!! != 0.0) {
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2, 0)
-                } else if (speed_kph!! < 20.0) {
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 1, 0)
-                } else if (speed_kph!! < 30.0) {
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 2, 0)
-                } else if (speed_kph!! < 40.0) {
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 3, 0)
-                } else if (speed_kph!! < 60.0) {
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 4, 0)
-                } else if (speed_kph!! < 80.0) {
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 5, 0)
-                } else if (speed_kph!! < 100.0) {
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 6, 0)
-                }else if (speed_kph!! >= 100.0) {
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 7, 0)
+                    if (speed_kph!! < 10.0 && speed_kph!! != 0.0) {
+                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2, 0)
+                    } else if (speed_kph!! < 20.0) {
+                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 1, 0)
+                    } else if (speed_kph!! < 30.0) {
+                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 2, 0)
+                    } else if (speed_kph!! < 40.0) {
+                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 3, 0)
+                    } else if (speed_kph!! < 60.0) {
+                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 4, 0)
+                    } else if (speed_kph!! < 80.0) {
+                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 5, 0)
+                    } else if (speed_kph!! < 100.0) {
+                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 6, 0)
+                    }else if (speed_kph!! >= 100.0) {
+                        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 7, 0)
+                    }
                 }
 
 
@@ -202,6 +204,8 @@ class GpsService(): Service(), LocationListener {
         mediaPlayerOnDecel.prepare()
         mediaPlayerOnAccel.prepare()
         mediaPlayerOnStart.prepare()
+
+        currentSound = "Null"
 
         timerTask.cancel()
         stopForeground(true)

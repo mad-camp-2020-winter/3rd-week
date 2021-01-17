@@ -18,6 +18,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.CompoundButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -30,6 +31,7 @@ import com.example.bongorghini.utils.GpsTracker
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.GooglePlayServicesUtil.isGooglePlayServicesAvailable
+import com.kyleduo.switchbutton.SwitchButton
 import java.lang.Exception
 
 
@@ -116,22 +118,11 @@ class EngineSelectFragment : Fragment() {
 
         val locationLog = viewOfLayout.findViewById<TextView>(R.id.locationLog)
 
+        // 디버깅용 ___________________________________________________________________
         val gpsButton = viewOfLayout.findViewById<Button>(R.id.gpsButton)
 
         gpsButton.setOnClickListener {
             myService.startForeGroundService()
-
-//            gpsTracker = GpsTracker(myContext)
-//            val latitude = gpsTracker.getLatitude()
-//            val longitude = gpsTracker.getLongitude()
-//            val speed = gpsTracker.getSpeed()
-//
-//            locationLog.text = locationLog.text.toString() + "\nLat: ${latitude}, Lng: ${longitude}, Spd: ${speed}"
-
-
-//            Toast.makeText(myContext, "Lat: ${latitude}, Lng: ${longitude}, Spd: ${speed}", Toast.LENGTH_SHORT).show()
-
-//            Log.d("location", "Lat: ${latitude}, Lng: ${longitude}")
         }
 
         val stopButton = viewOfLayout.findViewById<Button>(R.id.stopButton)
@@ -139,6 +130,26 @@ class EngineSelectFragment : Fragment() {
         stopButton.setOnClickListener{
             myService.stopForegroundService()
         }
+
+        // 실제사용 ___________________________________________________________________
+        val rangeButton = viewOfLayout.findViewById<SwitchButton>(R.id.rangeButton)
+        rangeButton.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener{
+            override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
+                if (isChecked) {
+                    myService.startForeGroundService()
+                } else {
+                    myService.stopForegroundService()
+                }
+            }
+        })
+
+        val volumeControlButton = viewOfLayout.findViewById<SwitchButton>(R.id.volumeControlButton)
+        volumeControlButton.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener{
+            override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
+                myService.volumeControlActive = isChecked
+            }
+        })
+
 
         Log.d("Service", "requireActivity")
         requireActivity().startService(Intent(requireContext(), GpsService::class.java))
