@@ -143,8 +143,8 @@ class GpsService(): Service(), LocationListener {
 
                 if (location_curr != null) {
                     val speed_mps = location_curr.speed.toDouble()
-//                    speed_kph = mps_to_kph(speed_mps)
-                    speed_kph = debugVelocity[temp]
+                    speed_kph = mps_to_kph(speed_mps)
+//                    speed_kph = debugVelocity[temp]
 
                     val status = getSpeedStatus(speed_kph_temp, speed_kph!!)
                     setSound(status)
