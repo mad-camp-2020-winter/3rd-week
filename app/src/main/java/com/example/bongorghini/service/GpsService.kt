@@ -68,7 +68,7 @@ class GpsService(): Service(), LocationListener {
 
     var maxVolumeIndex: Int? = null
 
-    var volumeControlActive = true
+    var volumeControlActive = false
 
     inner class MyBinder: Binder() {
         fun getService(): GpsService = this@GpsService
@@ -78,7 +78,7 @@ class GpsService(): Service(), LocationListener {
         powerConnectionReceiver =
             PowerConnectionReceiver(object : BatteryResultCallback {
                 override fun callDelegate(isCharging: Boolean) {
-                    Toast.makeText(myContext, if (isCharging) "충전중" else "Cable 연결안됨", Toast.LENGTH_SHORT).show()
+//                    Toast.makeText(myContext, if (isCharging) "충전중" else "Cable 연결안됨", Toast.LENGTH_SHORT).show()
                 }
             })
     }
@@ -143,8 +143,8 @@ class GpsService(): Service(), LocationListener {
 
                 if (location_curr != null) {
                     val speed_mps = location_curr.speed.toDouble()
-                    speed_kph = mps_to_kph(speed_mps)
-//                    speed_kph = debugVelocity[temp]
+//                    speed_kph = mps_to_kph(speed_mps)
+                    speed_kph = debugVelocity[temp]
 
                     val status = getSpeedStatus(speed_kph_temp, speed_kph!!)
                     setSound(status)

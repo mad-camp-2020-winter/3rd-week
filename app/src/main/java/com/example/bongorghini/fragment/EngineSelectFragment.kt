@@ -116,20 +116,22 @@ class EngineSelectFragment : Fragment() {
             return viewOfLayout
         }
 
-        val locationLog = viewOfLayout.findViewById<TextView>(R.id.locationLog)
 
         // 디버깅용 ___________________________________________________________________
-        val gpsButton = viewOfLayout.findViewById<Button>(R.id.gpsButton)
-
-        gpsButton.setOnClickListener {
-            myService.startForeGroundService()
-        }
-
-        val stopButton = viewOfLayout.findViewById<Button>(R.id.stopButton)
-
-        stopButton.setOnClickListener{
-            myService.stopForegroundService()
-        }
+//
+//        val locationLog = viewOfLayout.findViewById<TextView>(R.id.locationLog)
+//
+//        val gpsButton = viewOfLayout.findViewById<Button>(R.id.gpsButton)
+//
+//        gpsButton.setOnClickListener {
+//            myService.startForeGroundService()
+//        }
+//
+//        val stopButton = viewOfLayout.findViewById<Button>(R.id.stopButton)
+//
+//        stopButton.setOnClickListener{
+//            myService.stopForegroundService()
+//        }
 
         // 실제사용 ___________________________________________________________________
         val rangeButton = viewOfLayout.findViewById<SwitchButton>(R.id.rangeButton)
