@@ -6,16 +6,19 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
 import android.os.IBinder
 import android.util.Log
+import android.widget.Toast
 import androidx.core.content.ContextCompat
-import com.google.android.gms.location.LocationListener
 
 class GpsTracker(private val mContext: Context) : Service(), LocationListener {
     var location_curr: Location? = null
     var latitude = 0.0
     var longitude = 0.0
+    var speed = 0F
+
     protected var locationManager: LocationManager? = null
     fun getLocation(): Location? {
         try {
@@ -37,37 +40,41 @@ class GpsTracker(private val mContext: Context) : Service(), LocationListener {
                     hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED
                 ) {
                 } else return null
-                if (isNetworkEnabled) {
+
+                if (isGPSEnabled) {
+                    Log.d("GPStracker", "GPS enabled")
                     locationManager!!.requestLocationUpdates(
-                        LocationManager.NETWORK_PROVIDER,
-                        MIN_TIME_BW_UPDATES,
-                        MIN_DISTANCE_CHANGE_FOR_UPDATES.toFloat(),
-                        (this as android.location.LocationListener)
+                        LocationManager.GPS_PROVIDER,
+                        1000,
+                        0F,
+                        (this as LocationListener)
                     )
                     if (locationManager != null) {
+                        Log.d("GPStracker", "LocationManager is not null")
                         location_curr =
-                            locationManager!!.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                            locationManager!!.getLastKnownLocation(LocationManager.GPS_PROVIDER)
                         if (location_curr != null) {
+                            Log.d("GPStracker", "Location is not null")
                             latitude = location_curr!!.latitude
                             longitude = location_curr!!.longitude
+                            speed = location_curr!!.speed
                         }
                     }
                 }
-                if (isGPSEnabled) {
-                    if (location_curr == null) {
-                        locationManager!!.requestLocationUpdates(
-                            LocationManager.GPS_PROVIDER,
-                            MIN_TIME_BW_UPDATES,
-                            MIN_DISTANCE_CHANGE_FOR_UPDATES.toFloat(),
-                            (this as android.location.LocationListener)
-                        )
-                        if (locationManager != null) {
-                            location_curr =
-                                locationManager!!.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                            if (location_curr != null) {
-                                latitude = location_curr!!.latitude
-                                longitude = location_curr!!.longitude
-                            }
+                else if (isNetworkEnabled) {
+                    locationManager!!.requestLocationUpdates(
+                            LocationManager.NETWORK_PROVIDER,
+                            1000,
+                            0F,
+                            (this as LocationListener)
+                    )
+                    if (locationManager != null) {
+                        location_curr =
+                                locationManager!!.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                        if (location_curr != null) {
+                            latitude = location_curr!!.latitude
+                            longitude = location_curr!!.longitude
+                            speed = location_curr!!.speed
                         }
                     }
                 }
@@ -82,8 +89,9 @@ class GpsTracker(private val mContext: Context) : Service(), LocationListener {
     fun getLatitude(): Double {
         if (location_curr != null) {
             latitude = location_curr!!.latitude
+            return latitude
         }
-        return latitude
+        return 0.0
     }
 
     @JvmName("getLongitude1")
@@ -94,7 +102,18 @@ class GpsTracker(private val mContext: Context) : Service(), LocationListener {
         return longitude
     }
 
-    override fun onLocationChanged(location: Location) {}
+    fun getSpeed(): Float? {
+        if (location_curr != null) {
+            speed = location_curr!!.speed
+        }
+        return speed
+    }
+
+    override fun onLocationChanged(location: Location) {
+        Toast.makeText(mContext, "Lat: ${latitude}, Lng: ${longitude}", Toast.LENGTH_SHORT).show()
+        Log.d("GPStracker", "location changed!")
+    }
+
     override fun onBind(arg0: Intent): IBinder? {
         return null
     }
@@ -106,8 +125,8 @@ class GpsTracker(private val mContext: Context) : Service(), LocationListener {
     }
 
     companion object {
-        private const val MIN_DISTANCE_CHANGE_FOR_UPDATES: Long = 10
-        private const val MIN_TIME_BW_UPDATES = (1000 * 60 * 1).toLong()
+        private const val MIN_DISTANCE_CHANGE_FOR_UPDATES: Long = 0
+        private const val MIN_TIME_BW_UPDATES = (0).toLong()
     }
 
     init {

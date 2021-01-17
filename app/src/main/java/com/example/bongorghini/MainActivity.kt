@@ -44,10 +44,18 @@ class MainActivity : AppCompatActivity() {
         val backgroundLocationPermissionApproved = ActivityCompat
             .checkSelfPermission(this, android.Manifest.permission.ACCESS_BACKGROUND_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED
+        val permissionForegroundServiceApproved = ActivityCompat
+                .checkSelfPermission(this, android.Manifest.permission.FOREGROUND_SERVICE) ==
+                PackageManager.PERMISSION_GRANTED
 
         if (permissionAccessCoarseLocationApproved) {
             if (permissionAccessFineLocationApproved) {
                 if (backgroundLocationPermissionApproved) {
+                    if (permissionForegroundServiceApproved) {
+
+                    } else {
+                        ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.FOREGROUND_SERVICE), 100)
+                    }
 
                 } else {
                     ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION), 100)
