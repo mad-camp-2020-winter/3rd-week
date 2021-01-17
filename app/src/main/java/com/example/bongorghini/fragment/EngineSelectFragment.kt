@@ -106,6 +106,14 @@ class EngineSelectFragment : Fragment() {
             Log.d("Permission", "Location access permission denied")
             return viewOfLayout
         }
+        if (ActivityCompat.checkSelfPermission(
+                myContext,
+                android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED) {
+            Log.d("Permission", "Background Location access permission denied")
+            return viewOfLayout
+        }
+
         val locationLog = viewOfLayout.findViewById<TextView>(R.id.locationLog)
 
         val gpsButton = viewOfLayout.findViewById<Button>(R.id.gpsButton)
@@ -124,6 +132,12 @@ class EngineSelectFragment : Fragment() {
 //            Toast.makeText(myContext, "Lat: ${latitude}, Lng: ${longitude}, Spd: ${speed}", Toast.LENGTH_SHORT).show()
 
 //            Log.d("location", "Lat: ${latitude}, Lng: ${longitude}")
+        }
+
+        val stopButton = viewOfLayout.findViewById<Button>(R.id.stopButton)
+
+        stopButton.setOnClickListener{
+            myService.stopForegroundService()
         }
 
         Log.d("Service", "requireActivity")

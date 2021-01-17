@@ -14,7 +14,13 @@
             android:id="@+id/gpsButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Button" />
+            android:text="start" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/stopButton"
+            android:text="stop"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -22,6 +28,7 @@
             android:text="wow"
             android:id="@+id/locationLog"
             />
+
     </LinearLayout>
 
 
