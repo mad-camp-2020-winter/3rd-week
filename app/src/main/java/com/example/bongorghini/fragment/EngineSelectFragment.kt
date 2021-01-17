@@ -134,6 +134,12 @@ class EngineSelectFragment : Fragment() {
 //            Log.d("location", "Lat: ${latitude}, Lng: ${longitude}")
         }
 
+        val stopButton = viewOfLayout.findViewById<Button>(R.id.stopButton)
+
+        stopButton.setOnClickListener{
+            myService.stopForegroundService()
+        }
+
         Log.d("Service", "requireActivity")
         requireActivity().startService(Intent(requireContext(), GpsService::class.java))
         requireActivity().bindService(Intent(requireContext(), GpsService::class.java), connection, Context.BIND_AUTO_CREATE)
