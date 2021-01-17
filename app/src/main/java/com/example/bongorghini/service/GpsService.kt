@@ -3,9 +3,11 @@ package com.example.bongorghini.service
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.media.MediaPlayer
 import android.os.*
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -32,9 +34,22 @@ class GpsService(): Service(), LocationListener {
     private val dt: Long = 1000
 
     private var location_temp: Location? = null
+
+    private var speed_kph_temp: Double? = null
     private var speed_kph: Double? = null
 
     private var temp = 0
+
+    lateinit var mediaPlayerOnStart: MediaPlayer
+    lateinit var mediaPlayerOnAccel: MediaPlayer
+    lateinit var mediaPlayerOnDecel: MediaPlayer
+    var currentSound = "Start"
+
+    val batteryStatus: Intent? = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let {
+        intentFilter -> myContext.registerReceiver(null, intentFilter)
+    }
+    var isCharging = false
+
 
     inner class MyBinder: Binder() {
         fun getService(): GpsService = this@GpsService
@@ -43,6 +58,16 @@ class GpsService(): Service(), LocationListener {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate() {
         createNotificationChannel()
+
+        mediaPlayerOnStart = MediaPlayer.create(this, R.raw.start)
+        mediaPlayerOnAccel = MediaPlayer.create(this, R.raw.acceleration)
+        mediaPlayerOnDecel = MediaPlayer.create(this, R.raw.deceleration)
+
+        mediaPlayerOnStart.isLooping = true
+        mediaPlayerOnAccel.isLooping = true
+        mediaPlayerOnDecel.isLooping = true
+
+//        mediaPlayerOnStart.start()
         super.onCreate()
     }
 
@@ -78,7 +103,8 @@ class GpsService(): Service(), LocationListener {
 
                 if (location_curr != null) {
                     if (location_temp != null) {
-                        val speed_mps: Double = (location_curr!!.distanceTo(location_temp).toDouble()) / (dt / 1000).toDouble()
+//                        val speed_mps: Double = (location_curr!!.distanceTo(location_temp).toDouble()) / (dt / 1000).toDouble()
+                        val speed_mps = location_curr.speed.toDouble()
                         speed_kph = mps_to_kph(speed_mps)
 
                         location_temp = location_curr
@@ -89,7 +115,11 @@ class GpsService(): Service(), LocationListener {
                     }
 
                 }
+                val status: Int = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+                isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING
+                        || status == BatteryManager.BATTERY_STATUS_FULL
 
+                // 로그 찍기
                 val simpleDateFormat = SimpleDateFormat("yy/MM/dd kk:mm:ss")
                 simpleDateFormat.timeZone = TimeZone.getTimeZone("GMT+9")
 
@@ -141,5 +171,47 @@ class GpsService(): Service(), LocationListener {
 
     fun mps_to_kph (v_mps: Double): Double {
         return v_mps * 3.6
+    }
+
+    fun carStartSound() {
+        when (currentSound) {
+            "Accel" -> {
+                mediaPlayerOnAccel.stop()
+                mediaPlayerOnStart.start()
+            }
+            "Decel" -> {
+                mediaPlayerOnDecel.stop()
+                mediaPlayerOnStart.start()
+            }
+        }
+        currentSound = "Start"
+    }
+
+    fun carAccelSound() {
+        when (currentSound) {
+            "Start" -> {
+                mediaPlayerOnStart.stop()
+                mediaPlayerOnAccel.start()
+            }
+            "Decel" -> {
+                mediaPlayerOnDecel.stop()
+                mediaPlayerOnAccel.start()
+            }
+        }
+        currentSound = "Accel"
+    }
+
+    fun carDecelSound() {
+        when (currentSound) {
+            "Start" -> {
+                mediaPlayerOnStart.stop()
+                mediaPlayerOnDecel.start()
+            }
+            "Accel" -> {
+                mediaPlayerOnAccel.stop()
+                mediaPlayerOnDecel.start()
+            }
+        }
+        currentSound = "Decel"
     }
 }
