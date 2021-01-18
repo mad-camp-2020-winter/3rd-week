@@ -39,7 +39,14 @@ class GpsTracker(private val mContext: Context) : Service(), LocationListener {
                 if (hasFineLocationPermission == PackageManager.PERMISSION_GRANTED &&
                     hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED
                 ) {
-                } else return null
+                    Log.d("permission","Finelocation ${hasFineLocationPermission == PackageManager.PERMISSION_GRANTED}" +
+                            "CoarseLocation ${hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED}")
+                } else {
+                    Log.d("permission","Finelocation ${hasFineLocationPermission == PackageManager.PERMISSION_GRANTED}, " +
+                            "CoarseLocation ${hasCoarseLocationPermission == PackageManager.PERMISSION_GRANTED}")
+                    return null
+                }
+//                else return null
 
                 if (isGPSEnabled) {
                     Log.d("GPStracker", "GPS enabled")
@@ -61,14 +68,15 @@ class GpsTracker(private val mContext: Context) : Service(), LocationListener {
                         }
                     }
                 }
-                else if (isNetworkEnabled) {
+//                else
+                if (isNetworkEnabled) {
                     locationManager!!.requestLocationUpdates(
                             LocationManager.NETWORK_PROVIDER,
                             1000,
                             0F,
                             (this as LocationListener)
                     )
-                    if (locationManager != null) {
+                    if (locationManager != null && location_curr == null) {
                         location_curr =
                                 locationManager!!.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
                         if (location_curr != null) {

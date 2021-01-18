@@ -54,23 +54,28 @@ class MainActivity : AppCompatActivity() {
 
         if (!permissionAccessCoarseLocationApproved) {
             Log.d("Permission", "CoarseLocation not approved")
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION), 100)
+            ActivityCompat.requestPermissions(this,
+                    arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                            android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                            android.Manifest.permission.FOREGROUND_SERVICE),
+                    100)
         }
 
-        if (!permissionAccessFineLocationApproved) {
-            Log.d("Permission", "FineLocation not approved")
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 100)
-        }
-
-        if (!backgroundLocationPermissionApproved) {
-            Log.d("Permission", "BackgroundLocation not approved")
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION), 100)
-        }
-
-        if (!permissionForegroundServiceApproved) {
-            Log.d("Permission", "ForegroundService not approved")
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.FOREGROUND_SERVICE), 100)
-        }
+//        if (!permissionAccessFineLocationApproved) {
+//            Log.d("Permission", "FineLocation not approved")
+//            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 100)
+//        }
+//
+//        if (!backgroundLocationPermissionApproved) {
+//            Log.d("Permission", "BackgroundLocation not approved")
+//            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_BACKGROUND_LOCATION), 100)
+//        }
+//
+//        if (!permissionForegroundServiceApproved) {
+//            Log.d("Permission", "ForegroundService not approved")
+//            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.FOREGROUND_SERVICE), 100)
+//        }
 
 //        if (permissionAccessCoarseLocationApproved) {
 //            if (permissionAccessFineLocationApproved) {

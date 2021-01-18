@@ -111,7 +111,8 @@ class EngineSelectFragment : Fragment() {
                 android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
             ) != PackageManager.PERMISSION_GRANTED) {
             Log.d("Permission", "Background Location access permission denied")
-            return viewOfLayout
+            Toast.makeText(myContext, "Background Location access permission denied", Toast.LENGTH_SHORT)
+//            return viewOfLayout
         }
 
         //  Preference 불러오기 ________________________________________________________
@@ -134,10 +135,12 @@ class EngineSelectFragment : Fragment() {
 
         rangeButton.isChecked = serviceState
 
+
         rangeButton.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener{
             override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
 
                 if (isChecked) {
+                    Log.d("EngineSelectFragment", "startForeGroundService")
                     myService.startForeGroundService()
                     with (sharedPreferences.edit()) {
                         putBoolean("GPSrunning", true)
@@ -145,6 +148,7 @@ class EngineSelectFragment : Fragment() {
                     }
                     switcher.showNext()
                 } else {
+                    Log.d("EngineSelectFragment", "stopForegroundService")
                     myService.stopForegroundService()
                     with (sharedPreferences.edit()) {
                         putBoolean("GPSrunning", false)
