@@ -55,7 +55,7 @@ class GpsService(): Service(), LocationListener {
     lateinit var mediaPlayerOnDecel: MediaPlayer
     var currentSound = "Null"
 
-    var powerConnectionReceiver: PowerConnectionReceiver
+//    var powerConnectionReceiver: PowerConnectionReceiver
     lateinit var batteryStatus: Intent
 
     val debugVelocity = listOf<Double>(
@@ -63,7 +63,8 @@ class GpsService(): Service(), LocationListener {
         3.0, 4.0, 5.0, 36.0, 37.0, 38.0, 79.0, 80.0, 81.0, 92.0, 103.0,
         104.0, 95.0, 76.0,
         0.0,
-        77.0, 38.0, 39.0, 38.0, 27.0, 16.0, 15.0, 14.0, 13.0, 12.0, 11.0, 10.0,
+        77.0, 38.0, 39.0, 38.0, 27.0, 16.0, 15.0, 14.0, 13.0, 12.0, 11.0, 10.0, 10.1, 10.2, 10.3, 10.4,
+            10.5, 10.6, 10.7, 10.8, 10.9,
         9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0
     )
 
@@ -75,14 +76,14 @@ class GpsService(): Service(), LocationListener {
         fun getService(): GpsService = this@GpsService
     }
 
-    init {
-        powerConnectionReceiver =
-            PowerConnectionReceiver(object : BatteryResultCallback {
-                override fun callDelegate(isCharging: Boolean) {
-                    Toast.makeText(myContext, if (isCharging) "충전중" else "Cable 연결안됨", Toast.LENGTH_SHORT).show()
-                }
-            })
-    }
+//    init {
+//        powerConnectionReceiver =
+//            PowerConnectionReceiver(object : BatteryResultCallback {
+//                override fun callDelegate(isCharging: Boolean) {
+//                    Toast.makeText(myContext, if (isCharging) "충전중" else "Cable 연결안됨", Toast.LENGTH_SHORT).show()
+//                }
+//            })
+//    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate() {
@@ -132,9 +133,9 @@ class GpsService(): Service(), LocationListener {
 
         maxVolumeIndex = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
 
-        batteryStatus = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let {
-                intentFilter -> myContext.registerReceiver(powerConnectionReceiver, intentFilter)
-        }!!
+//        batteryStatus = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let {
+//                intentFilter -> myContext.registerReceiver(powerConnectionReceiver, intentFilter)
+//        }!!
 
         timerTask = timer(period = dt) {
             var mHandler = Handler(Looper.getMainLooper())
@@ -144,8 +145,8 @@ class GpsService(): Service(), LocationListener {
 
                 if (location_curr != null) {
                     val speed_mps = location_curr.speed.toDouble()
-                    speed_kph = mps_to_kph(speed_mps)
-//                    speed_kph = debugVelocity[temp]
+//                    speed_kph = mps_to_kph(speed_mps)
+                    speed_kph = debugVelocity[temp]
 
                     val status = getSpeedStatus(speed_kph_temp, speed_kph!!, dt)
                     setSound(status)
