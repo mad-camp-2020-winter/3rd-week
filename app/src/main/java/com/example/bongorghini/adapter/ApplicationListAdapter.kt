@@ -1,6 +1,7 @@
 package com.example.bongorghini.adapter
 
 import android.content.Context
+import android.database.DataSetObserver
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.util.Base64
@@ -14,9 +15,11 @@ import com.example.bongorghini.listener.ItemDragListener
 import com.example.bongorghini.model.Application
 import java.io.ByteArrayInputStream
 import java.util.*
+import kotlin.collections.ArrayList
 
 
-class ApplicationListAdapter(list: ArrayList<Application>?, private val listener : ItemDragListener) : RecyclerView.Adapter<ApplicationListAdapter.CustomViewHolder>(), ItemActionListener {
+class ApplicationListAdapter(list: ArrayList<Application>?, private val listener : ItemDragListener) : RecyclerView.Adapter<ApplicationListAdapter.CustomViewHolder>(), ItemActionListener,
+    Adapter {
 //    private val mLongListener: OnListItemLongSelectedInterface
 //    private val mListener: OnListItemSelectedInterface
 
@@ -32,6 +35,10 @@ class ApplicationListAdapter(list: ArrayList<Application>?, private val listener
 //    interface OnListItemSelectedInterface {
 //        fun onItemSelected(v: View?, position: Int)
 //    }
+
+    fun returnList() : ArrayList<Application>? {
+        return mList
+    }
 
     //ItemActionListener 재정의
     override fun onItemMoved(from: Int, to: Int) {
@@ -111,8 +118,32 @@ class ApplicationListAdapter(list: ArrayList<Application>?, private val listener
         notifyDataSetChanged()
     }
 
-    fun getItem(position: Int): Application {
+    override fun isEmpty(): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+        TODO("Not yet implemented")
+    }
+
+    override fun registerDataSetObserver(observer: DataSetObserver?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getItem(position: Int): Application {
         return mList!![position]
+    }
+
+    override fun getViewTypeCount(): Int {
+        TODO("Not yet implemented")
+    }
+
+    override fun unregisterDataSetObserver(observer: DataSetObserver?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getCount(): Int {
+        TODO("Not yet implemented")
     }
 
     fun removeItem(position: Int) {
