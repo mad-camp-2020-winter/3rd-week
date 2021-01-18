@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.bongorghini">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -14,6 +15,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Bongorghini">
+        <service
+            android:name=".service.AutoExecuteService"
+            android:enabled="true"
+            android:exported="true"></service>
+
         <receiver
             android:name=".utils.PowerConnectionReceiver"
             android:enabled="true"
@@ -34,6 +40,8 @@
         <service
             android:name=".service.GpsService"
             android:foregroundServiceType="location" />
+
     </application>
 
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 </manifest>
