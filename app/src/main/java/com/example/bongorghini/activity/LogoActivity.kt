@@ -23,10 +23,10 @@ class LogoActivity : AppCompatActivity() {
 //        )
 //
 //        mAnim.setInterpolator(applicationContext, R.anim.accelerate_interpolator)
-//
-//        val mediaPlayer: MediaPlayer =
-//            MediaPlayer.create(applicationContext, R.raw.splash_music)
-//        mediaPlayer.start()
+
+        val mediaPlayer: MediaPlayer =
+            MediaPlayer.create(applicationContext, R.raw.logo_sound_edit)
+        mediaPlayer.start()
 
         val handler = Handler()
         handler.postDelayed({

@@ -6,20 +6,49 @@
     tools:context=".fragment.OrderListFragment"
     android:background="@drawable/background">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/order_list"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbarFadeDuration="0"
-        android:scrollbarSize="5dp"
-        android:scrollbarThumbVertical="@android:color/darker_gray"
-        android:scrollbars="vertical"/>
+        android:orientation="vertical"
+        android:layout_marginBottom="80dp">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/order_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbarFadeDuration="0"
+            android:scrollbarSize="5dp"
+            android:scrollbarThumbVertical="@android:color/darker_gray"
+            android:scrollbars="vertical"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="center"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Auto Execution"
+            android:textColor="@color/white"
+            android:textSize="15dp"/>
+
+        <com.kyleduo.switchbutton.SwitchButton
+            android:id="@+id/service_control"
+            style="@style/SwitchButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+    </LinearLayout>
 
     <ImageView
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:id="@+id/add_application"
-        android:src="@drawable/picture"
+        android:src="@drawable/reminders"
         android:scaleType="centerCrop"
         android:paddingRight="20dp"
         android:paddingBottom="20dp"
@@ -36,11 +65,4 @@
         android:paddingBottom="20dp"
         android:layout_gravity="bottom"
         />
-
-    <com.kyleduo.switchbutton.SwitchButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginBottom="100dp"
-        android:id="@+id/service_control"/>
 </FrameLayout>

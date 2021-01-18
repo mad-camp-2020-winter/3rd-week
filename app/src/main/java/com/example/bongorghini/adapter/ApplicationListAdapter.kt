@@ -95,7 +95,7 @@ class ApplicationListAdapter(list: ArrayList<Application>?, private val listener
 //        viewholder.icon.layoutParams = params
 //        viewholder.name.gravity = Gravity.CENTER
         viewholder.name.setText(mList!![position].name)
-        viewholder.delay.text = "delay : " + mList!![position].delay
+        viewholder.delay.text = "delay : 5초"
         var data: String? = mList!![position].icon
         if (data == null) {
             viewholder.icon.setImageResource(R.drawable.tools) // 테스트용 임의 설정
