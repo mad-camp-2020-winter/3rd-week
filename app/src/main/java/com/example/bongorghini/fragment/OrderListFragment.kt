@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -24,6 +25,7 @@ import com.example.bongorghini.model.Application
 import com.example.bongorghini.service.AutoExecuteService
 import com.example.bongorghini.service.GpsService
 import com.example.bongorghini.utils.ItemTouchHelperCallback
+import com.kyleduo.switchbutton.SwitchButton
 
 class OrderListFragment : Fragment(), ItemDragListener {
 
@@ -98,13 +100,29 @@ class OrderListFragment : Fragment(), ItemDragListener {
             startActivityForResult(intent, 200) //임의숫자  requestCode로 설정
 
         }
-            //Service test용
-        var serviceButton = v.findViewById<ImageView>(R.id.service_control)
-        serviceButton.setOnClickListener { v -> myService.autoStart() }
 
         val intent = Intent(this.context, AutoExecuteService::class.java)
+
         requireActivity().startService(intent)
+        Toast.makeText(myContext, "Service Started", Toast.LENGTH_SHORT).show()
         requireActivity().bindService(intent, connection, Context.BIND_AUTO_CREATE)
+
+        //Service test용
+        var serviceButton = v.findViewById<SwitchButton>(R.id.service_control)
+        serviceButton.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+                myService.startForegroundService()
+            }
+            else {
+                myService.stopForegroundService()
+                Toast.makeText(myContext, "Service Finished", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        var autoExecution: ImageView = v.findViewById(R.id.auto_execution)
+        autoExecution.setOnClickListener { v->
+            myService.autoStart()
+        }
 
         return v
 

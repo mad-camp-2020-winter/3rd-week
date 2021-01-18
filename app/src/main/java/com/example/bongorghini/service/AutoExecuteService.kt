@@ -27,7 +27,7 @@ class AutoExecuteService() : Service() {
     lateinit var myContext: Context
     var powerConnectionReceiver: PowerConnectionReceiver
 
-    var firstCharge: Int = 0
+    var serviceActivated: Boolean = false
 
     var isChargingGlobal = true
     val CHANNEL_ID = "AutoExecute Service Activated"
@@ -51,8 +51,8 @@ class AutoExecuteService() : Service() {
                 override fun callDelegate(isCharging: Boolean) {
                     Toast.makeText(myContext, if (isCharging) "충전중" else "Cable 연결안됨", Toast.LENGTH_SHORT).show()
                     isChargingGlobal = isCharging
-                    if(isCharging && (firstCharge == 0)) autoStart()
-                    else if(!isCharging) turnOffScreen()
+                    if(serviceActivated && isCharging) autoStart()
+                    else if(serviceActivated && !isCharging) turnOffScreen()
                 }
             })
     }
@@ -61,22 +61,14 @@ class AutoExecuteService() : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+    }
 
-        //Notification 설정
-        val notificationIntent = Intent(this, MainActivity::class.java)
-        notificationIntent.putExtra("tabIndex", 2)
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-
-        val notification = createNotification(pendingIntent)
-        val NOTIFICATION_ID = 103
-        startForeground(NOTIFICATION_ID, notification)
-
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(NOTIFICATION_ID,notification)
+    override fun onDestroy() {
+        stopForeground(true)
+        super.onDestroy()
     }
 
     fun autoStart() {
-        firstCharge ++
         mList = mCaller.mAdapter.returnList()!!
         Toast.makeText(this, mList.toString(), Toast.LENGTH_SHORT).show()
 
@@ -90,7 +82,6 @@ class AutoExecuteService() : Service() {
             intent!!.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
             if (!isChargingGlobal) {
-
             }
 
             Log.d("test", mList.get(i).path!!)
@@ -98,10 +89,30 @@ class AutoExecuteService() : Service() {
         }
     }
 
+    fun stopForegroundService() {
+        serviceActivated = false
+        stopForeground(true)
+    }
+
+    fun startForegroundService() {
+        serviceActivated = true
+        //Notification 설정
+        val notificationIntent = Intent(this, MainActivity::class.java)
+        notificationIntent.putExtra("tabIndex", 2)
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val notification = createNotification(pendingIntent)
+        val NOTIFICATION_ID = 103
+        startForeground(NOTIFICATION_ID, notification)
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(NOTIFICATION_ID,notification)
+    }
+
     @SuppressLint("InvalidWakeLockTag")
     private fun turnOffScreen() {
         Thread.sleep(3000)
-        if(!isChargingGlobal && (firstCharge==1)){
+        if(!isChargingGlobal){
             var manager = getSystemService(Context.POWER_SERVICE) as PowerManager
             val wl = manager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Your Tag")
             wl.acquire()
