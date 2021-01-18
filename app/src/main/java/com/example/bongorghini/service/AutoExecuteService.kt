@@ -49,6 +49,8 @@ class AutoExecuteService() : Service() {
         powerConnectionReceiver =
             PowerConnectionReceiver(object : BatteryResultCallback {
                 override fun callDelegate(isCharging: Boolean) {
+
+                    Toast.makeText(myContext, "hi $serviceActivated", Toast.LENGTH_SHORT)
                     if (serviceActivated) {
                         if (isCharging) autoStart()
                         else turnOffScreen()
@@ -75,7 +77,6 @@ class AutoExecuteService() : Service() {
         Thread {
 
             for (i in 0..mList.size - 1) {
-                Toast.makeText(this, "hi $serviceActivated", Toast.LENGTH_SHORT)
                 if (serviceActivated) {
                     val pm = packageManager
                     val intent = pm.getLaunchIntentForPackage(mList.get(i).path!!)
@@ -83,7 +84,7 @@ class AutoExecuteService() : Service() {
                     startActivity(intent)
 
                     Log.d("test", mList.get(i).path!!)
-                    Thread.sleep(3000)
+                    Thread.sleep(5000)
                 }
             }
         }.start()
