@@ -147,7 +147,7 @@ class GpsService(): Service(), LocationListener {
                     speed_kph = mps_to_kph(speed_mps)
 //                    speed_kph = debugVelocity[temp]
 
-                    val status = getSpeedStatus(speed_kph_temp, speed_kph!!)
+                    val status = getSpeedStatus(speed_kph_temp, speed_kph!!, dt)
                     setSound(status)
 
                     notificationManager.notify(
