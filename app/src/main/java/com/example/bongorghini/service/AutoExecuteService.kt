@@ -50,13 +50,17 @@ class AutoExecuteService() : Service() {
             PowerConnectionReceiver(object : BatteryResultCallback {
                 override fun callDelegate(isCharging: Boolean) {
 
-                    Toast.makeText(myContext, "hi $serviceActivated", Toast.LENGTH_SHORT)
+//                    Toast.makeText(myContext,
+//                            "serviceActivated $serviceActivated" + if (isCharging) "충전중" else "Cable 연결안됨",
+//                            Toast.LENGTH_SHORT).show()
                     if (serviceActivated) {
-                        if (isCharging) autoStart()
-                        else turnOffScreen()
+                        Log.d("AUtoExecuteService", "autostart $isCharging")
+                        if (isCharging && !isChargingGlobal) autoStart()
+//                        else turnOffScreen()
                     }
-                    Toast.makeText(myContext, if (isCharging) "충전중" else "Cable 연결안됨", Toast.LENGTH_SHORT).show()
                     isChargingGlobal = isCharging
+
+//                    startForegroundService()
                 }
             })
     }
@@ -68,37 +72,43 @@ class AutoExecuteService() : Service() {
     }
 
     override fun onDestroy() {
+        serviceActivated = false
         stopForeground(true)
         super.onDestroy()
     }
 
     fun autoStart() {
 //        Toast.makeText(this, mList.toString(), Toast.LENGTH_SHORT).show()
-        Thread {
+        Log.d("AutoExecuteService", "autostart")
 
-            for (i in 0..mList.size - 1) {
-                if (serviceActivated) {
-                    val pm = packageManager
-                    val intent = pm.getLaunchIntentForPackage(mList.get(i).path!!)
-                    intent!!.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    startActivity(intent)
+        for (i in 0..mList.size - 1) {
+            if (serviceActivated) {
+                val pm = packageManager
+                val intent = pm.getLaunchIntentForPackage(mList.get(i).path!!)
+                intent!!.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
 
-                    Log.d("test", mList.get(i).path!!)
-                    Thread.sleep(5000)
-                }
+                Log.d("test", mList.get(i).path!!)
+                Thread.sleep(5000)
             }
-        }.start()
+        }
 
 
     }
 
     fun stopForegroundService() {
+        Toast.makeText(myContext,
+                "stopForegroundService",
+                Toast.LENGTH_SHORT).show()
         serviceActivated = false
         stopForeground(true)
     }
 
     fun startForegroundService() {
         //Notification 설정
+        Toast.makeText(myContext,
+                "startForegroundService",
+                Toast.LENGTH_SHORT).show()
         val notificationIntent = Intent(this, MainActivity::class.java)
         notificationIntent.putExtra("tabIndex", 2)
         val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)

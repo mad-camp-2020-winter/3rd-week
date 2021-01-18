@@ -144,9 +144,10 @@ class GpsService(): Service(), LocationListener {
                 val location_curr = gpsTracker.getLocation()
 
                 if (location_curr != null) {
+                    Log.d("location", "location is not null")
                     val speed_mps = location_curr.speed.toDouble()
-//                    speed_kph = mps_to_kph(speed_mps)
-                    speed_kph = debugVelocity[temp]
+                    speed_kph = mps_to_kph(speed_mps)
+//                    speed_kph = debugVelocity[temp]
 
                     val status = getSpeedStatus(speed_kph_temp, speed_kph!!, dt)
                     setSound(status)
@@ -157,6 +158,8 @@ class GpsService(): Service(), LocationListener {
                     )
 
                     speed_kph_temp = speed_kph
+                } else {
+                    Log.d("location", "location is null $speed_kph")
                 }
 
                 // 속도로 볼륨 컨트롤
@@ -176,7 +179,7 @@ class GpsService(): Service(), LocationListener {
                         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 5, 0)
                     } else if (speed_kph!! < 100.0) {
                         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 6, 0)
-                    }else if (speed_kph!! >= 100.0) {
+                    } else if (speed_kph!! >= 100.0) {
                         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolumeIndex!! / 2 + 7, 0)
                     }
                 }
@@ -310,8 +313,10 @@ class GpsService(): Service(), LocationListener {
 //        0: 정지중, 1: 가속중, 2: 감속중
         if (speed1 == null || speed2 == 0.0) {
             return -1
-        } else if (speed2 < 10 || abs(speed2 - speed1) * 1000 / dt < 0.7) { // 정지중이거나 유지중
+        } else if (speed2 < 10) { // 정지중이거나 유지중
             return 0
+        } else if (abs(speed2 - speed1) * 1000 / dt < 0.7) {
+            return -1
         } else if (speed2 > speed1!!){ // 가속중
             return 1
         } else { // 감속중
