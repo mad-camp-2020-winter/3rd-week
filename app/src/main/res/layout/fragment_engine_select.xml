@@ -8,27 +8,20 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/gpsButton"
+        <com.kyleduo.switchbutton.SwitchButton
+            android:id="@+id/rangeButton"
+            style="@style/SwitchButtonStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="start" />
+            android:layout_height="wrap_content" />
 
-        <Button
+        <com.kyleduo.switchbutton.SwitchButton
+            android:id="@+id/volumeControlButton"
+            style="@style/SwitchButtonStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/stopButton"
-            android:text="stop"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="wow"
-            android:id="@+id/locationLog"
-            />
-
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 

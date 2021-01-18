@@ -110,7 +110,7 @@ class GpsTracker(private val mContext: Context) : Service(), LocationListener {
     }
 
     override fun onLocationChanged(location: Location) {
-        Toast.makeText(mContext, "Lat: ${latitude}, Lng: ${longitude}", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(mContext, "Lat: ${latitude}, Lng: ${longitude}", Toast.LENGTH_SHORT).show()
         Log.d("GPStracker", "location changed!")
     }
 
