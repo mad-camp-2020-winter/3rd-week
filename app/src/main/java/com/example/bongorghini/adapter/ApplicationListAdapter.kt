@@ -25,7 +25,7 @@ class ApplicationListAdapter(list: ArrayList<Application>?, private val listener
 
     private lateinit var context: Context
 
-    private var mList: ArrayList<Application>? = ArrayList<Application>()
+    var mList: ArrayList<Application>? = ArrayList<Application>()
 
 //    //누를 때, 길게 누를때 상황에 맞춰 override
 //    interface OnListItemLongSelectedInterface {

@@ -22,7 +22,7 @@ import com.example.bongorghini.utils.PowerConnectionReceiver
 class AutoExecuteService() : Service() {
 
     private val myBinder = MyBinder()
-    private lateinit var mList: ArrayList<com.example.bongorghini.model.Application>
+    lateinit var mList: ArrayList<com.example.bongorghini.model.Application>
     private lateinit var mCaller : OrderListFragment
     lateinit var myContext: Context
     var powerConnectionReceiver: PowerConnectionReceiver
@@ -49,10 +49,12 @@ class AutoExecuteService() : Service() {
         powerConnectionReceiver =
             PowerConnectionReceiver(object : BatteryResultCallback {
                 override fun callDelegate(isCharging: Boolean) {
+                    if (serviceActivated) {
+                        if (isCharging) autoStart()
+                        else turnOffScreen()
+                    }
                     Toast.makeText(myContext, if (isCharging) "충전중" else "Cable 연결안됨", Toast.LENGTH_SHORT).show()
                     isChargingGlobal = isCharging
-                    if(serviceActivated && isCharging) autoStart()
-                    else if(serviceActivated && !isCharging) turnOffScreen()
                 }
             })
     }
@@ -69,24 +71,24 @@ class AutoExecuteService() : Service() {
     }
 
     fun autoStart() {
-        mList = mCaller.mAdapter.returnList()!!
-        Toast.makeText(this, mList.toString(), Toast.LENGTH_SHORT).show()
+//        Toast.makeText(this, mList.toString(), Toast.LENGTH_SHORT).show()
+        Thread {
 
-        batteryStatus = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let {
-                intentFilter -> myContext.registerReceiver(powerConnectionReceiver, intentFilter)
-        }!!
+            for (i in 0..mList.size - 1) {
+                Toast.makeText(this, "hi $serviceActivated", Toast.LENGTH_SHORT)
+                if (serviceActivated) {
+                    val pm = packageManager
+                    val intent = pm.getLaunchIntentForPackage(mList.get(i).path!!)
+                    intent!!.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    startActivity(intent)
 
-        for (i in 0..mList.size-1) {
-            val pm = packageManager
-            val intent = pm.getLaunchIntentForPackage(mList.get(i).path!!)
-            intent!!.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
-            if (!isChargingGlobal) {
+                    Log.d("test", mList.get(i).path!!)
+                    Thread.sleep(3000)
+                }
             }
+        }.start()
 
-            Log.d("test", mList.get(i).path!!)
-            Thread.sleep(3000)
-        }
+
     }
 
     fun stopForegroundService() {
@@ -95,7 +97,6 @@ class AutoExecuteService() : Service() {
     }
 
     fun startForegroundService() {
-        serviceActivated = true
         //Notification 설정
         val notificationIntent = Intent(this, MainActivity::class.java)
         notificationIntent.putExtra("tabIndex", 2)
@@ -107,6 +108,12 @@ class AutoExecuteService() : Service() {
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(NOTIFICATION_ID,notification)
+
+        batteryStatus = IntentFilter(Intent.ACTION_BATTERY_CHANGED).let {
+                intentFilter -> myContext.registerReceiver(powerConnectionReceiver, intentFilter)
+        }!!
+
+        serviceActivated = true
     }
 
     @SuppressLint("InvalidWakeLockTag")
