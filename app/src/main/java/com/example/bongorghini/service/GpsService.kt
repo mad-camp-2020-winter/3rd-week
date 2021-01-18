@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.timer
+import kotlin.math.abs
 import kotlin.math.max
 
 
@@ -38,7 +39,7 @@ class GpsService(): Service(), LocationListener {
 //    }
     private lateinit var gpsTracker: GpsTracker
 
-    private val dt: Long = 1000
+    private val dt: Long = 500
 
     private var location_temp: Location? = null
 
@@ -78,7 +79,7 @@ class GpsService(): Service(), LocationListener {
         powerConnectionReceiver =
             PowerConnectionReceiver(object : BatteryResultCallback {
                 override fun callDelegate(isCharging: Boolean) {
-//                    Toast.makeText(myContext, if (isCharging) "충전중" else "Cable 연결안됨", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(myContext, if (isCharging) "충전중" else "Cable 연결안됨", Toast.LENGTH_SHORT).show()
                 }
             })
     }
@@ -143,8 +144,8 @@ class GpsService(): Service(), LocationListener {
 
                 if (location_curr != null) {
                     val speed_mps = location_curr.speed.toDouble()
-//                    speed_kph = mps_to_kph(speed_mps)
-                    speed_kph = debugVelocity[temp]
+                    speed_kph = mps_to_kph(speed_mps)
+//                    speed_kph = debugVelocity[temp]
 
                     val status = getSpeedStatus(speed_kph_temp, speed_kph!!)
                     setSound(status)
@@ -304,11 +305,11 @@ class GpsService(): Service(), LocationListener {
         currentSound = "Decel"
     }
 
-    fun getSpeedStatus(speed1: Double?, speed2: Double): Int {
+    fun getSpeedStatus(speed1: Double?, speed2: Double, deltaT: Long): Int {
 //        0: 정지중, 1: 가속중, 2: 감속중
         if (speed1 == null || speed2 == 0.0) {
             return -1
-        } else if (speed2 < 5) { // 정지중
+        } else if (speed2 < 10 || abs(speed2 - speed1) * 1000 / dt < 0.7) { // 정지중이거나 유지중
             return 0
         } else if (speed2 > speed1!!){ // 가속중
             return 1
