@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragment.EngineSelectFragment"
-    android:background="@color/black">
+    android:background="@drawable/background">
 
 
     <LinearLayout
@@ -23,8 +23,7 @@
 
             <ImageView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:src="@color/black"/>
+                android:layout_height="match_parent"/>
 
             <ImageView
                 android:layout_width="match_parent"
