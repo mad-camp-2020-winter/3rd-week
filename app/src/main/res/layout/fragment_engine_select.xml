@@ -3,13 +3,50 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.EngineSelectFragment">
+    tools:context=".fragment.EngineSelectFragment"
+    android:background="@color/black">
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:gravity="center">
+
+
+        <ViewSwitcher
+            android:layout_width="350dp"
+            android:layout_height="350dp"
+            android:inAnimation="@android:anim/fade_in"
+            android:outAnimation="@android:anim/fade_out"
+            android:id="@+id/switcher">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@color/black"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/sound_on_image"/>
+
+        </ViewSwitcher>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:gravity="center"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sport+ mode"
+            android:textColor="@color/white"
+            android:textSize="15dp"/>
 
         <com.kyleduo.switchbutton.SwitchButton
             android:id="@+id/rangeButton"
@@ -17,11 +54,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SDVC"
+            android:textColor="@color/white"
+            android:textSize="15dp"
+            android:layout_marginLeft = "30dp"/>
+
         <com.kyleduo.switchbutton.SwitchButton
             android:id="@+id/volumeControlButton"
             style="@style/SwitchButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+
     </LinearLayout>
 
 

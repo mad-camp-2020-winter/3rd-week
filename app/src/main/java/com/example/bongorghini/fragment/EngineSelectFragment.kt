@@ -13,14 +13,12 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.IBinder
+import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.CompoundButton
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -116,31 +114,43 @@ class EngineSelectFragment : Fragment() {
             return viewOfLayout
         }
 
+        //  Preference 불러오기 ________________________________________________________
+        val sharedPreferences = myContext.getPreferences(Context.MODE_PRIVATE)
 
-        // 디버깅용 ___________________________________________________________________
-//
-//        val locationLog = viewOfLayout.findViewById<TextView>(R.id.locationLog)
-//
-//        val gpsButton = viewOfLayout.findViewById<Button>(R.id.gpsButton)
-//
-//        gpsButton.setOnClickListener {
-//            myService.startForeGroundService()
-//        }
-//
-//        val stopButton = viewOfLayout.findViewById<Button>(R.id.stopButton)
-//
-//        stopButton.setOnClickListener{
-//            myService.stopForegroundService()
-//        }
+        var serviceState = sharedPreferences.getBoolean("GPSrunning", false)
+        with (sharedPreferences.edit()) {
+             putBoolean("GPSrunning", serviceState)
+            commit()
+        }
 
-        // 실제사용 ___________________________________________________________________
+        // 스위치들 ___________________________________________________________________
         val rangeButton = viewOfLayout.findViewById<SwitchButton>(R.id.rangeButton)
+        val switcher = viewOfLayout.findViewById<ViewSwitcher>(R.id.switcher)
+        if (serviceState) {
+            switcher.showNext()
+        }
+
+        Log.d("Servicestate", serviceState.toString())
+
+        rangeButton.isChecked = serviceState
+
         rangeButton.setOnCheckedChangeListener(object: CompoundButton.OnCheckedChangeListener{
             override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
+
                 if (isChecked) {
                     myService.startForeGroundService()
+                    with (sharedPreferences.edit()) {
+                        putBoolean("GPSrunning", true)
+                        commit()
+                    }
+                    switcher.showNext()
                 } else {
                     myService.stopForegroundService()
+                    with (sharedPreferences.edit()) {
+                        putBoolean("GPSrunning", false)
+                        commit()
+                    }
+                    switcher.showPrevious()
                 }
             }
         })
