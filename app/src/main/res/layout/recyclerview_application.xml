@@ -63,16 +63,19 @@
     <FrameLayout
         android:id="@+id/drag_handle"
         android:layout_width="match_parent"
-        android:layout_height="100dp">
+        android:layout_height="match_parent">
 
         <ImageButton
             android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_height="20dp"
             android:layout_gravity="end|center"
-            android:src="@drawable/tools"
+            android:src="@drawable/order_control"
+            android:scaleType="centerCrop"
             android:layout_marginTop="40dp"
             android:layout_marginRight="15dp"
-            android:id="@+id/order_button"/>
+            android:layout_marginBottom="20dp"
+            android:id="@+id/order_button"
+            android:background="@android:color/transparent"/>
     </FrameLayout>
 
 
