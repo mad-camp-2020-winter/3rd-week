@@ -51,14 +51,18 @@ class MainActivity : AppCompatActivity() {
         val permissionForegroundServiceApproved = ActivityCompat
                 .checkSelfPermission(this, android.Manifest.permission.FOREGROUND_SERVICE) ==
                 PackageManager.PERMISSION_GRANTED
+        val permissionWakeLockApproved = ActivityCompat
+                .checkSelfPermission(this, android.Manifest.permission.WAKE_LOCK) ==
+                PackageManager.PERMISSION_GRANTED
 
-        if (!permissionAccessCoarseLocationApproved) {
+        if (!permissionAccessCoarseLocationApproved || !permissionAccessFineLocationApproved || !backgroundLocationPermissionApproved || !permissionForegroundServiceApproved || !permissionWakeLockApproved) {
             Log.d("Permission", "CoarseLocation not approved")
             ActivityCompat.requestPermissions(this,
                     arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION,
                             android.Manifest.permission.ACCESS_FINE_LOCATION,
                             android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                            android.Manifest.permission.FOREGROUND_SERVICE),
+                            android.Manifest.permission.FOREGROUND_SERVICE,
+                            android.Manifest.permission.WAKE_LOCK),
                     100)
         }
 

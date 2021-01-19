@@ -56,7 +56,7 @@ class AutoExecuteService() : Service() {
                     if (serviceActivated) {
                         Log.d("AUtoExecuteService", "autostart $isCharging")
                         if (isCharging && !isChargingGlobal) autoStart()
-//                        else turnOffScreen()
+                        else if (!isCharging && isChargingGlobal) turnOffScreen()
                     }
                     isChargingGlobal = isCharging
 
@@ -127,15 +127,11 @@ class AutoExecuteService() : Service() {
         serviceActivated = true
     }
 
-    @SuppressLint("InvalidWakeLockTag")
     private fun turnOffScreen() {
-        Thread.sleep(3000)
-        if(!isChargingGlobal){
-            var manager = getSystemService(Context.POWER_SERVICE) as PowerManager
-            val wl = manager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Your Tag")
-            wl.acquire()
-            wl.release()
-        }
+        Toast.makeText(myContext,"turnoff Screen", Toast.LENGTH_SHORT).show()
+        var manager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        val wl = manager.newWakeLock(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK, "tag")
+        wl.acquire()
     }
 
     private fun createNotification(pendingIntent: PendingIntent): Notification {
