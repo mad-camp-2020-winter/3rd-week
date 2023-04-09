@@ -14,5 +14,3 @@
 💬 이영석 : 기능 1 담당
 
 💬 이강욱 : 기능 2 담당
-
-시연 영상 : https://www.notion.so/f808c838db8d41f3a281a5be6511ac9a#be9624a3e3e2417aacadd1cf81aa5f31
